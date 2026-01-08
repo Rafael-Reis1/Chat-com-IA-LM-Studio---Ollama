@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.3/dist/panzoom.min.js"></script>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <title>Chat</title>
+</head>
+
+<body>
+    <button id="menuButton" class="menu-button" aria-label="Abrir Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button id="btnNewChat" class="btn-new-chat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Novo Chat
+            </button>
+        </div>
+        <div class="chat-list" id="chatList">
+        </div>
+        <div class="sidebar-footer">
+            <button class="btnVoltar" id="btnPersonas" style="margin-bottom: 10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Personas</span>
+            </button>
+            <button class="btnVoltar" id="btnSettings" style="margin-bottom: 10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                <span>Configurações</span>
+            </button>
+
+        </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="main-wrapper" id="mainWrapper">
+        <div class="container">
+            <div class="messages" id="messages"></div>
+            <div class="form-group">
+                <textarea name="promptText" id="promptText" class="form-control" rows="1"
+                    placeholder="Digite sua mensagem para a IA..." autofocus></textarea>
+
+                <button id="sendButton" aria-label="Enviar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        class="icon-send">
+                        <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                <button id="stopButton" style="display: none;" aria-label="Parar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon-stop">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="canvas-container" id="canvasContainer">
+            <div class="canvas-header">
+                <span class="canvas-title">Preview</span>
+                <div class="canvas-actions">
+                    <button id="refreshCanvas" class="canvas-btn" title="Atualizar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                    </button>
+                    <button id="closeCanvas" class="canvas-btn" title="Fechar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <iframe id="canvasFrame" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+        </div>
+    </div>
+
+    <div class="modal" id="personasModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Personas / Assistentes</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="personasList" class="personas-list">
+                </div>
+
+                <div id="personaEditor" class="persona-editor" style="display: none;">
+                    <div class="modal-form-group">
+                        <label for="inputPersonaName">Nome</label>
+                        <input type="text" id="inputPersonaName" class="modal-input"
+                            placeholder="Ex: Professor de Inglês">
+                    </div>
+                    <div class="modal-form-row">
+                        <div class="modal-form-group">
+                            <label for="inputPersonaColor">Cor</label>
+                            <div style="position: relative;">
+                                <div id="inputPersonaColor" class="color-preview" style="background: #f2511b;"></div>
+                                <div id="colorPicker" class="color-picker" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="inputPersonaIcon">Ícone (Emoji)</label>
+                            <div style="position: relative;">
+                                <input type="text" id="inputPersonaIcon" class="modal-input text-center"
+                                    placeholder="🤖" maxlength="4"
+                                    style="width: 80px; cursor: pointer; caret-color: transparent; user-select: none;"
+                                    readonly>
+                                <div id="emojiPicker" class="emoji-picker" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="inputPersonaPrompt">Prompt de Sistema</label>
+                        <textarea id="inputPersonaPrompt" class="modal-input"
+                            placeholder="Ex: Você é um professor. Corrija gramática..." rows="12"></textarea>
+                    </div>
+                    <div class="editor-actions">
+                        <button id="btnSavePersona" class="btn-primary">Salvar</button>
+                        <button id="btnCancelPersona" class="btn-secondary">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="footer-row">
+                    <button id="btnAddPersona" class="btn-primary-outline">+ Nova Persona</button>
+                    <div class="footer-icon-buttons">
+                        <button id="btnImportPersona" class="btn-icon-small" title="Importar Personas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
+                        <button id="btnExportAllPersonas" class="btn-icon-small" title="Exportar Personas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="footer-chats-row">
+                    <button id="btnImportChats" class="btn-chat-action">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Importar Chats
+                    </button>
+                    <button id="btnExportChats" class="btn-chat-action">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Exportar Chats
+                    </button>
+                </div>
+                <input type="file" id="importPersonaFile" accept=".json" style="display: none;">
+                <input type="file" id="importChatsFile" accept=".json" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Configurações AI</h2>
+                <button class="close-modal" id="closeSettingsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-form-group">
+                    <label for="inputApiUrl" title="Endpoint da API OpenAI-compatible">
+                        API URL
+                        <span style="font-size: 0.8em; color: var(--text-secondary); margin-left: 8px;">(LM Studio /
+                            Ollama)</span>
+                    </label>
+                    <input type="text" id="inputApiUrl" class="modal-input"
+                        placeholder="http://localhost:1234/v1/chat/completions">
+                    <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 4px;">
+                        Padrão LM Studio: <code>http://localhost:1234/v1/chat/completions</code><br>
+                        Padrão Ollama: <code>http://localhost:11434/v1/chat/completions</code>
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label for="inputModelId">Nome do Modelo</label>
+                    <input type="text" id="inputModelId" class="modal-input" placeholder="local-model">
+                    <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 4px;">
+                        Identificador do modelo (ex: "llama-3.2", "local-model"). O LM Studio geralmente aceita qualquer
+                        string.
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <div id="connectionStatus" class="connection-status"
+                        style="display: none; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9em;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnTestConnection" class="btn-secondary">Testar Conexão</button>
+                <button id="btnSaveSettings" class="btn-primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="genericModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="genericModalTitle">Atenção</h2>
+                <button class="close-modal" id="closeGenericModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="genericModalMessage"></p>
+                <input type="text" id="genericModalInput" class="modal-input" style="display: none; margin-top: 1rem;"
+                    autocomplete="off">
+            </div>
+            <div class="modal-footer" id="genericModalFooter"
+                style="flex-direction: row; justify-content: flex-end; padding-top: 1rem; gap: 0.5rem;">
+                <button id="genericModalCancelBtn" class="btn-secondary" style="display: none;">Cancelar</button>
+                <button id="genericModalOkBtn" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+
+</html>
