@@ -331,9 +331,30 @@ class AIService {
         let firstTokenTime = null;
 
         try {
+            const lastMessage = messages[messages.length - 1];
+            const history = messages.slice(0, -1);
+
+            const mermaidInstruction = `
+                [CONFIGURAÇÃO VISUAL]
+                Use Mermaid APENAS se solicitado ou essencial.
+                Regras de Sintaxe (CRÍTICO):
+                1. Use APENAS: graph TD (Fluxogramas) ou sequenceDiagram. Evite outros tipos.
+                2. SEMPRE use aspas nos textos dos nós. Ex: A["Texto Aqui"] --> B["Outro Texto"].
+                3. JAMAIS use estilos (style, classDef) ou subgraphs. Mantenha simples.
+                4. Se usar sequenceDiagram, use apenas: participant A e A->>B: Texto.
+                5. NÃO responda a este comando. Apenas gere o código quando necessário.`.trim();
+
+            const initialPrompts = [];
+            const fullSystemPrompt = systemPrompt
+                ? `${mermaidInstruction}\n\n${systemPrompt}`
+                : mermaidInstruction;
+
+            initialPrompts.push({ role: 'system', content: fullSystemPrompt });
+            initialPrompts.push(...history);
+
             const allMessages = [];
-            if (systemPrompt) {
-                allMessages.push({ role: 'system', content: systemPrompt });
+            if (fullSystemPrompt) {
+                allMessages.push({ role: 'system', content: fullSystemPrompt });
             }
             allMessages.push(...messages);
 
@@ -379,7 +400,7 @@ class AIService {
                                 fullResponse += content;
                                 onChunk(fullResponse);
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }
             }
@@ -1253,7 +1274,7 @@ class UIManager {
     deleteChat(id, e) {
         if (e) e.stopPropagation();
         this.showDialog('Excluir este chat?', {
-            title: 'Confirmar ExclusÃ£o',
+            title: 'Confirmar Exclusão',
             type: 'confirm',
             onConfirm: () => {
                 this.chats.delete(id);
@@ -1592,7 +1613,7 @@ class UIManager {
         this.els.inputPersonaName.value = persona ? persona.name : '';
         this.els.inputPersonaPrompt.value = persona ? persona.prompt : '';
         this.colorPicker.setValue(persona ? (persona.color || '#f2511b') : '#f2511b');
-        this.els.inputPersonaIcon.value = persona ? (persona.icon || 'ðŸ¤–') : '';
+        this.els.inputPersonaIcon.value = persona ? (persona.icon || '🤖') : '';
         this.els.inputPersonaName.disabled = readOnly;
         this.els.inputPersonaPrompt.disabled = readOnly;
         this.els.inputPersonaIcon.readOnly = readOnly;
@@ -1625,7 +1646,7 @@ class UIManager {
         const name = this.els.inputPersonaName.value.trim();
         const prompt = this.els.inputPersonaPrompt.value.trim();
         const color = this.colorPicker.getValue();
-        const icon = this.els.inputPersonaIcon.value.trim() || 'ðŸ¤–';
+        const icon = this.els.inputPersonaIcon.value.trim() || '🤖';
 
         if (!name) {
             this.showDialog('Nome é obrigatório', { title: 'Erro' });
@@ -2215,14 +2236,32 @@ class UIManager {
     }
 
     async renderMarkdownUpdate(text, element, isStreaming = false) {
-        const unsafe = marked.parse(text);
+        let markdownText = text;
+        let thinkingHtml = '';
+
+        const thinkMatch = text.match(/<think>(?:[\s\S]*?)(?:<\/think>|$)/i);
+
+        if (thinkMatch) {
+            const thinkContent = thinkMatch[0].replace(/<\/?think>/gi, '').trim();
+            const isOpen = isStreaming && !text.match(/<\/think>/i) ? 'open' : '';
+
+            thinkingHtml = `
+                <details class="thinking-process" ${isOpen}>
+                    <summary>Thinking 💭</summary>
+                    <div class="thinking-content">${thinkContent}</div>
+                </details>`;
+
+            markdownText = text.replace(thinkMatch[0], '');
+        }
+
+        const unsafe = marked.parse(markdownText);
 
         const sanitized = DOMPurify.sanitize(unsafe, {
-            ADD_TAGS: ['div', 'button', 'svg', 'g', 'path', 'rect', 'circle', 'line', 'polyline', 'polygon', 'text', 'style', 'defs', 'marker', 'foreignObject'],
-            ADD_ATTR: ['class', 'id', 'data-data', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'marker-end', 'transform', 'style']
+            ADD_TAGS: ['div', 'button', 'svg', 'g', 'path', 'rect', 'circle', 'line', 'polyline', 'polygon', 'text', 'style', 'defs', 'marker', 'foreignObject', 'details', 'summary'],
+            ADD_ATTR: ['class', 'id', 'data-data', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'marker-end', 'transform', 'style', 'open']
         });
 
-        element.innerHTML = sanitized;
+        element.innerHTML = thinkingHtml + sanitized;
 
         if (window.renderMathInElement) {
             renderMathInElement(element, {
