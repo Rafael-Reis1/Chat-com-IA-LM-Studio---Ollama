@@ -1932,7 +1932,7 @@ class UIManager {
             const context = currentChat ? currentChat.messages.map(m => ({ role: m.role, content: m.content })) : [];
             let systemPrompt = currentChat ? currentChat.systemPrompt : '';
 
-            systemPrompt += "\n\nREGRAS TÉCNICAS OBRIGATÓRIAS:\n1. TODO elemento HTML DEVE ter 'id'. Mantenha IDs existentes.\n2. ECONOMIA DE TOKENS: Ao editar, gere APENAS o bloco HTML do elemento alterado (ex: apenas o <div id='container'>...</div>) e não o arquivo todo, a menos que o usuário peça explicitamente a página completa.\nO sistema fará o merge automático pelo ID.";
+            systemPrompt += "\n\nREGRAS TÉCNICAS OBRIGATÓRIAS:\n1. TODO elemento HTML DEVE ter 'id'. Mantenha IDs existentes.\n2. GERAÇÃO DE CÓDIGO: Ao editar ou corrigir código, sempre gere o arquivo COMPLETO da linguagem que está sendo alterada. Não gere snippets parciais ou apenas trechos.\n3. FOCO: Gere apenas o(s) arquivo(s) que você está modificando. Não precisa regenerar arquivos que não foram alterados.";
 
             let responseStats = null;
 
