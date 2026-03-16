@@ -1910,6 +1910,8 @@ class UIManager {
         this.setLoadingState(true);
         this.abortController = new AbortController();
 
+        this.scrollToBottom(true);
+
         try {
             if (!(await this.ai.isAvailable())) {
                 throw new Error('API de IA não disponível. Verifique as flags do Chrome.');
