@@ -1189,8 +1189,6 @@ class UIManager {
             }
         }
 
-        setTimeout(() => this.scrollToBottom(true), 50);
-
         this.renderChatList();
         this.updateInputState();
 
@@ -2002,7 +2000,6 @@ class UIManager {
             if (msgElement) msgElement.classList.remove('is-streaming');
             this.abortController = null;
 
-            setTimeout(() => this.scrollToBottom(), 100);
             this.updateMessageActions();
         }
     }
@@ -2356,7 +2353,6 @@ class UIManager {
             hljs.highlightElement(block);
             block.classList.add('hljs-added');
         });
-        this.scrollToBottom();
     }
 
     renderMessage(role, content, animate = true) {
@@ -2397,19 +2393,6 @@ class UIManager {
         }
 
         this.els.messages.appendChild(div);
-        this.scrollToBottom(true);
-    }
-
-    scrollToBottom(force = false) {
-        if (!this.els.messages) return;
-
-        const el = this.els.messages;
-        const threshold = 150;
-        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
-
-        if (force || isNearBottom) {
-            el.scrollTop = el.scrollHeight;
-        }
     }
 
     setLoadingState(isLoading) {
