@@ -331,22 +331,13 @@ class AIService {
         let firstTokenTime = null;
 
         try {
-            const lastMessage = messages[messages.length - 1];
             const history = messages.slice(0, -1);
 
-            const mermaidInstruction = `
-                [CONFIGURAÇÃO VISUAL]
-                Use Mermaid APENAS se solicitado ou essencial.
-                Regras de Sintaxe (CRÍTICO):
-                1. Use APENAS: graph TD (Fluxogramas) ou sequenceDiagram. Evite outros tipos.
-                2. SEMPRE use aspas nos textos dos nós. Ex: A["Texto Aqui"] --> B["Outro Texto"].
-                3. JAMAIS use estilos (style, classDef) ou subgraphs. Mantenha simples.
-                4. Se usar sequenceDiagram, use apenas: participant A e A->>B: Texto.
-                5. NÃO responda a este comando. Apenas gere o código quando necessário.`.trim();
+            const mermaidInstruction = `[DIRETRIZ VISUAL] NÃO gere códigos, HTML ou diagramas Mermaid a menos que o usuário solicite EXPLICITAMENTE. Se o usuário quiser apenas conversar, responda apenas com texto natural. Se um diagrama for estritamente exigido, use apenas 'graph TD' ou 'sequenceDiagram' simples com aspas nos nós.`;
 
             const initialPrompts = [];
             const fullSystemPrompt = systemPrompt
-                ? `${mermaidInstruction}\n\n${systemPrompt}`
+                ? `${systemPrompt}\n\n${mermaidInstruction}`
                 : mermaidInstruction;
 
             initialPrompts.push({ role: 'system', content: fullSystemPrompt });
@@ -1932,9 +1923,25 @@ class UIManager {
             const context = currentChat ? currentChat.messages.map(m => ({ role: m.role, content: m.content })) : [];
             let systemPrompt = currentChat ? currentChat.systemPrompt : '';
 
-            systemPrompt += "\n\nREGRAS TÉCNICAS OBRIGATÓRIAS:\n1. TODO elemento HTML DEVE ter 'id'. Mantenha IDs existentes.\n2. GERAÇÃO DE CÓDIGO: Ao editar ou corrigir código, sempre gere o arquivo COMPLETO da linguagem que está sendo alterada. Não gere snippets parciais ou apenas trechos.\n3. FOCO: Gere apenas o(s) arquivo(s) que você está modificando. Não precisa regenerar arquivos que não foram alterados.";
+            const hasCodeContext = this.codeState && (this.codeState.html || this.codeState.css || this.codeState.js);
+
+            const isDevPersona = currentChat && (
+                currentChat.personaName.includes('Dev') || 
+                currentChat.personaName.includes('Arquiteto')
+            );
+
+            if (isDevPersona || hasCodeContext) {
+                systemPrompt += `\n\n[REGRAS TÉCNICAS PARA CÓDIGO]:\nSe você for gerar ou editar código, siga estas regras: 1. Todo elemento HTML gerado deve ter 'id' (mantenha IDs existentes). 2. GERAÇÃO DE CÓDIGO: Ao editar ou corrigir código, sempre gere o arquivo COMPLETO da linguagem que está sendo alterada. Não gere snippets parciais ou apenas trechos. 3. FOCO: Gere apenas o(s) arquivo(s) que você está modificando. Não precisa regenerar arquivos que não foram alterados.`;
+            }
 
             let responseStats = null;
+
+            if (hasCodeContext) {
+                const combinedCode = this.combineCode(this.codeState);
+                if (combinedCode && combinedCode.length < 300000) {
+                    systemPrompt += `\n\n[CONTEXTO ATUAL DO PROJETO]:\nUse este código como referência absoluta para suas edições.\n\`\`\`html\n${combinedCode}\n\`\`\``;
+                }
+            }
 
             if (this.codeState && (this.codeState.html || this.codeState.css || this.codeState.js)) {
                 const combinedCode = this.combineCode(this.codeState);
