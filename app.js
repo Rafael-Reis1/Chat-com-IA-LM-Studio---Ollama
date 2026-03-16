@@ -1189,6 +1189,8 @@ class UIManager {
             }
         }
 
+        setTimeout(() => this.scrollToBottom(true), 50);
+
         this.renderChatList();
         this.updateInputState();
 
