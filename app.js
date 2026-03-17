@@ -324,30 +324,47 @@ class AIService {
     }
 
     async generateStream(messages, systemPrompt, callbacks, signal) {
-        const { onChunk, onDownloadProgress, onStats } = callbacks;
+        const { onChunk, onStats } = callbacks;
         const { apiUrl, modelId } = this.settingsManager.get();
         const startTime = Date.now();
         let fullResponse = '';
         let firstTokenTime = null;
 
         try {
-            const history = messages.slice(0, -1);
-
             const mermaidInstruction = `[DIRETRIZ VISUAL] NÃO gere códigos, HTML ou diagramas Mermaid a menos que o usuário solicite EXPLICITAMENTE. Se o usuário quiser apenas conversar, responda apenas com texto natural. Se um diagrama for estritamente exigido, use apenas 'graph TD' ou 'sequenceDiagram' simples com aspas nos nós.`;
 
-            const initialPrompts = [];
             const fullSystemPrompt = systemPrompt
                 ? `${systemPrompt}\n\n${mermaidInstruction}`
                 : mermaidInstruction;
 
-            initialPrompts.push({ role: 'system', content: fullSystemPrompt });
-            initialPrompts.push(...history);
+            const MAX_CHARS = 60000;
+            const currentPrompt = messages[messages.length - 1];
+            const history = messages.slice(0, -1);
+            
+            const fixedLength = fullSystemPrompt.length + currentPrompt.content.length;
+            let availableBudget = MAX_CHARS - fixedLength;
+            let optimizedHistory = [];
+
+            if (availableBudget > 0) {
+                for (let i = history.length - 1; i >= 0; i--) {
+                    const msg = history[i];
+                    const msgSize = msg.role.length + msg.content.length + 10;
+
+                    if (availableBudget - msgSize >= 0) {
+                        optimizedHistory.unshift(msg);
+                        availableBudget -= msgSize;
+                    } else {
+                        break; 
+                    }
+                }
+            }
 
             const allMessages = [];
             if (fullSystemPrompt) {
                 allMessages.push({ role: 'system', content: fullSystemPrompt });
             }
-            allMessages.push(...messages);
+            allMessages.push(...optimizedHistory);
+            allMessages.push(currentPrompt);
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -355,7 +372,9 @@ class AIService {
                 body: JSON.stringify({
                     model: modelId,
                     messages: allMessages,
-                    stream: true
+                    stream: true,
+                    temperature: 0.7,
+                    max_tokens: -1
                 }),
                 signal
             });
@@ -1940,15 +1959,11 @@ class UIManager {
 
             if (hasCodeContext) {
                 const combinedCode = this.combineCode(this.codeState);
-                if (combinedCode && combinedCode.length < 300000) {
-                    systemPrompt += `\n\n[CONTEXTO ATUAL DO PROJETO]:\nUse este código como referência absoluta para suas edições.\n\`\`\`html\n${combinedCode}\n\`\`\``;
-                }
-            }
-
-            if (this.codeState && (this.codeState.html || this.codeState.css || this.codeState.js)) {
-                const combinedCode = this.combineCode(this.codeState);
-                if (combinedCode && combinedCode.length < 300000) {
-                    systemPrompt += `\n\nCONTEXTO ATUAL (Estado do Projeto):\nUse este código como referência absoluta para suas edições.\n\`\`\`html\n${combinedCode}\n\`\`\``;
+                if (combinedCode && combinedCode.length < 40000) { 
+                    systemPrompt += `\n\n[CONTEXTO ATUAL]:\nUse este código como referência absoluta para suas edições.\n\`\`\`html\n${combinedCode}\n\`\`\``;
+                } else if (combinedCode) {
+                    const truncatedCode = combinedCode.substring(0, 40000);
+                    systemPrompt += `\n\n[CONTEXTO ATUAL (PARCIAL)]:\nO código é muito grande, aqui está a primeira parte:\n\`\`\`html\n${truncatedCode}\n...[CÓDIGO TRUNCADO]\n\`\`\``;
                 }
             }
 

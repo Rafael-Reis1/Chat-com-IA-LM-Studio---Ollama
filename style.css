@@ -10,8 +10,8 @@
     --accent-glow: 0 0 15px rgba(242, 81, 27, 0.5);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.7);
-    --font-heading: 'Outfit', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Outfit', sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue';
+    --font-body: 'Inter', sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue';
 }
 
 * {
@@ -19,13 +19,14 @@
     margin: 0;
     box-sizing: border-box;
     font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background: var(--body-gradient);
     background-attachment: fixed;
     color: var(--text-primary);
-    min-height: 100vh;
+    min-height: 100dvh;
     font-family: var(--font-body);
 }
 
@@ -43,7 +44,7 @@ body {
 @media (min-width: 769px) {
 
     .container {
-        width: calc(100vw - 260px);
+        width: calc(100dvw - 260px);
         margin-left: 260px;
     }
 
@@ -115,7 +116,7 @@ body {
 
     .container.full-width {
         margin-left: 80px;
-        width: calc(100vw - 80px);
+        width: calc(100dvw - 80px);
     }
 }
 
@@ -653,7 +654,7 @@ progress {
 
 @media (max-width: 768px) {
     .container {
-        width: 100vw;
+        width: 100dvw;
         margin-left: 0;
     }
 
@@ -716,16 +717,19 @@ progress {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
     z-index: 1000;
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
 }
 
 .modal.active {
-    display: flex;
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .modal-content {
@@ -738,19 +742,13 @@ progress {
     display: flex;
     flex-direction: column;
     max-height: 85vh;
-    animation: slideUp 0.3s ease-out;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.modal.active .modal-content {
+    transform: translateY(0) scale(1);
 }
 
 .modal-header {
@@ -759,6 +757,7 @@ progress {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .modal-header h2 {
@@ -797,6 +796,7 @@ progress {
     border-top: 1px solid var(--glass-border);
     display: flex;
     justify-content: flex-end;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .personas-list {
@@ -1477,51 +1477,6 @@ textarea.modal-input {
     }
 }
 
-details.thinking-process {
-    background-color: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    font-size: 0.9em;
-}
-
-body.dark-mode details.thinking-process {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-details.thinking-process summary {
-    padding: 8px 12px;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--text-secondary);
-    user-select: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-details.thinking-process summary:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-}
-
-body.dark-mode details.thinking-process summary:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-}
-
-details.thinking-process .thinking-content {
-    padding: 12px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    color: var(--text-secondary);
-    font-style: italic;
-    white-space: pre-wrap;
-}
-
-body.dark-mode details.thinking-process .thinking-content {
-    border-top-color: rgba(255, 255, 255, 0.1);
-}
-
 .rowUser,
 .rowAssistant {
     position: relative;
@@ -1600,7 +1555,7 @@ body.dark-mode details.thinking-process .thinking-content {
 
 .main-wrapper {
     display: flex;
-    width: calc(100vw - 260px);
+    width: calc(100dvw - 260px);
     margin-left: 260px;
     height: 100dvh;
     overflow: hidden;
@@ -1790,6 +1745,43 @@ body.dark-mode details.thinking-process .thinking-content {
     left: 0;
 }
 
+.rowAssistant .message table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.rowAssistant .message th {
+    text-align: left;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom: 2px solid var(--glass-border);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.rowAssistant .message td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.rowAssistant .message tr:last-child td {
+    border-bottom: none;
+}
+
+.rowAssistant .message td:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+    width: 30%;
+}
+
 @media (max-width: 1024px) {
     .main-wrapper.canvas-open .container {
         flex: 0 0 35%;
@@ -1817,33 +1809,4 @@ body.dark-mode details.thinking-process .thinking-content {
         max-width: 100%;
         height: 50dvh;
     }
-}
-
-.connection-status {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-    border: 1px solid transparent;
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.connection-status.success {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-}
-
-.connection-status.error {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-}
-
-.connection-status.loading {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
 }
