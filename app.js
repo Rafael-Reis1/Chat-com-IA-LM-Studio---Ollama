@@ -254,7 +254,7 @@ class ChatManager {
 class SettingsManager {
     constructor() {
         this.settings = {
-            apiUrl: 'http://localhost:1234/v1/chat/completions',
+            apiUrl: 'http://127.0.0.1:1234/v1/chat/completions',
             modelId: 'local-model'
         };
         this.load();
@@ -280,7 +280,7 @@ class SettingsManager {
     }
 
     update(apiUrl, modelId) {
-        this.settings.apiUrl = apiUrl || 'http://localhost:1234/v1/chat/completions';
+        this.settings.apiUrl = apiUrl || 'http://127.0.0.1:1234/v1/chat/completions';
         this.settings.modelId = modelId || 'local-model';
         this.save();
     }
@@ -337,7 +337,7 @@ class AIService {
                 ? `${systemPrompt}\n\n${mermaidInstruction}`
                 : mermaidInstruction;
 
-            const MAX_CHARS = 60000;
+            const MAX_CHARS = 800000;
             const currentPrompt = messages[messages.length - 1];
             const history = messages.slice(0, -1);
             
@@ -1959,10 +1959,10 @@ class UIManager {
 
             if (hasCodeContext) {
                 const combinedCode = this.combineCode(this.codeState);
-                if (combinedCode && combinedCode.length < 40000) { 
+                if (combinedCode && combinedCode.length < 350000) { 
                     systemPrompt += `\n\n[CONTEXTO ATUAL]:\nUse este código como referência absoluta para suas edições.\n\`\`\`html\n${combinedCode}\n\`\`\``;
                 } else if (combinedCode) {
-                    const truncatedCode = combinedCode.substring(0, 40000);
+                    const truncatedCode = combinedCode.substring(0, 350000);
                     systemPrompt += `\n\n[CONTEXTO ATUAL (PARCIAL)]:\nO código é muito grande, aqui está a primeira parte:\n\`\`\`html\n${truncatedCode}\n...[CÓDIGO TRUNCADO]\n\`\`\``;
                 }
             }
@@ -2252,7 +2252,7 @@ class UIManager {
 
     throttledRender(fullText, element, force) {
         const now = Date.now();
-        if (!force && (now - this.lastRenderTime < 100)) return;
+        if (!force && (now - this.lastRenderTime < 0)) return;
 
         this.lastRenderTime = now;
         this.renderMarkdownUpdate(fullText, element, !force);
