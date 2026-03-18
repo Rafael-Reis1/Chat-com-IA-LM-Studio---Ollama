@@ -1782,6 +1782,79 @@ textarea.modal-input {
     width: 30%;
 }
 
+.thinking-process {
+    margin: 0.5rem 0 1rem 0;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.thinking-process summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    transition: background 0.2s, color 0.2s;
+    user-select: none;
+}
+
+.thinking-process summary::-webkit-details-marker {
+    display: none;
+}
+
+.thinking-process summary::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid currentColor;
+    transition: transform 0.2s ease;
+}
+
+.thinking-process[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.thinking-process summary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.thinking-process[open] summary {
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.thinking-content {
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.6;
+    background: rgba(0, 0, 0, 0.15);
+    border-left: 3px solid var(--accent-color);
+    font-style: italic;
+}
+
+.thinking-content p {
+    margin: 0.5rem 0;
+}
+
+.thinking-content p:first-child {
+    margin-top: 0;
+}
+
+.thinking-content p:last-child {
+    margin-bottom: 0;
+}
+
 @media (max-width: 1024px) {
     .main-wrapper.canvas-open .container {
         flex: 0 0 35%;
