@@ -337,7 +337,7 @@ class AIService {
                 ? `${systemPrompt}\n\n${mermaidInstruction}`
                 : mermaidInstruction;
 
-            const MAX_CHARS = 800000;
+            const MAX_CHARS = 600000;
             const currentPrompt = messages[messages.length - 1];
             const history = messages.slice(0, -1);
             
